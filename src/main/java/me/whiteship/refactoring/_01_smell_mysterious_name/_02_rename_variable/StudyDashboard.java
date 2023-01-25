@@ -11,6 +11,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/*
+    변수 이름 바꾸기
+        - 많이 사용될 수록 이름이 중요
+           - 람다식에서 사용하는 변수 vs 함수의 매개변수
+        - 다이나믹 타입을 지원하는 언어에서 타입을 이름에 넣기도 한다.
+ */
 public class StudyDashboard {
 
     private Set<String> usernames = new HashSet<>();
@@ -26,10 +32,11 @@ public class StudyDashboard {
         GHRepository repository = gitHub.getRepository("whiteship/live-study");
         GHIssue issue = repository.getIssue(30);
 
-        List<GHIssueComment> comments = issue.getComments();
-        for (GHIssueComment comment : comments) {
-            usernames.add(comment.getUserName());
-            this.reviews.add(comment.getBody());
+        //loadReviews이므로 review가 맞을 것 같다
+        List<GHIssueComment> reviews = issue.getComments();
+        for (GHIssueComment review : reviews) {
+            usernames.add(review.getUserName());
+            this.reviews.add(review.getBody());
         }
     }
 
@@ -44,7 +51,8 @@ public class StudyDashboard {
     public static void main(String[] args) throws IOException {
         StudyDashboard studyDashboard = new StudyDashboard();
         studyDashboard.loadReviews();
-        studyDashboard.getUsernames().forEach(name -> System.out.println(name));
-        studyDashboard.getReviews().forEach(review -> System.out.println(review));
+        studyDashboard.getUsernames().forEach(System.out::println);
+        studyDashboard.getReviews().forEach(System.out::println);
+        //또는 람다식 안의 변수는 메서드참조를 사용하거나, 이미 알고 있는 내용이기에 name -> n 등 간추려 적어도 괜찮을 것 같다.
     }
 }
