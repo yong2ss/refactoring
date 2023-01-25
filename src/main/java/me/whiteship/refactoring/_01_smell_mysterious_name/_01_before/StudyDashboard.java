@@ -8,6 +8,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * IDE의 Refactor -> Rename , change Signature 적극적으로 사용
+ */
 public class StudyDashboard {
     private Set<String> usernames = new HashSet<>();
 

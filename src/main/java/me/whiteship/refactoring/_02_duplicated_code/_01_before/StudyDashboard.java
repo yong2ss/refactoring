@@ -9,6 +9,11 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * 중복 코드
+ *      - 유지보수시 동일한 모든 곳의 코드를 변경/관리
+ *      - 비슷한지, 동일한지 코드를 주의 깊게 확인 필요
+ */
 public class StudyDashboard {
 
     private void printParticipants(int eventId) throws IOException {
