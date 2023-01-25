@@ -11,11 +11,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/*
+    필드 이름 바꾸기
+        - java 14부터는 record를 지원
+            - record 자료 구조의 필드 이름은 프로그램 전반에 걸쳐 참조될 수 있기 때문에 매우 중요
+ */
 public class StudyDashboard {
-
-    private Set<String> usernames = new HashSet<>();
-
-    private Set<String> reviews = new HashSet<>();
+    private Set<StudyReview> studyReviews = new HashSet<>();
 
     /**
      * 스터디 리뷰 이슈에 작성되어 있는 리뷰어 목록과 리뷰를 읽어옵니다.
@@ -28,23 +30,17 @@ public class StudyDashboard {
 
         List<GHIssueComment> reviews = issue.getComments();
         for (GHIssueComment review : reviews) {
-            usernames.add(review.getUserName());
-            this.reviews.add(review.getBody());
+            studyReviews.add(new StudyReview(review.getUserName(), review.getBody()));
         }
     }
 
-    public Set<String> getUsernames() {
-        return usernames;
-    }
-
-    public Set<String> getReviews() {
-        return reviews;
+    public Set<StudyReview> getStudyReviews() {
+        return studyReviews;
     }
 
     public static void main(String[] args) throws IOException {
         StudyDashboard studyDashboard = new StudyDashboard();
         studyDashboard.loadReviews();
-        studyDashboard.getUsernames().forEach(System.out::println);
-        studyDashboard.getReviews().forEach(System.out::println);
+        studyDashboard.getStudyReviews().forEach(System.out::println);
     }
 }
