@@ -16,10 +16,26 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * 매개변수 객체 만들기
+ * 같은 매개변수들이 여러 메소드에 걸쳐서 나타나면, 매개변수들을 묶은 자료 구조
+ * - 데이터간의 관계를 보다 명시적으로 나타낼 수 있다.
+ * - 전달할 매개변수의 개수를 줄일 수 있다.
+ * - 도메인을 이해하는데 중요한 역할을 하는 클래스로 발전 가능
+ * 
+ * Refactoring -> Introduce Parameter Object이용 - 매개변수를 하나의 객체로 묶어서 사용하거나
+ * Refacotring -> Introduce Field 사용 - 필드 중 일부를 field 변수로 사용
+ */
 public class StudyDashboard {
 
+    private final int totalNumberOfEvents;
+
+    public StudyDashboard(int totalNumberOfEvents) {
+        this.totalNumberOfEvents = totalNumberOfEvents;
+    }
+
     public static void main(String[] args) throws IOException, InterruptedException {
-        StudyDashboard studyDashboard = new StudyDashboard();
+        StudyDashboard studyDashboard = new StudyDashboard(15);
         studyDashboard.print();
     }
 
@@ -28,7 +44,6 @@ public class StudyDashboard {
         GHRepository repository = gitHub.getRepository("whiteship/live-study");
         List<Participant> participants = new CopyOnWriteArrayList<>();
 
-        int totalNumberOfEvents = 15;
         ExecutorService service = Executors.newFixedThreadPool(8);
         CountDownLatch latch = new CountDownLatch(totalNumberOfEvents);
 
@@ -70,16 +85,16 @@ public class StudyDashboard {
              PrintWriter writer = new PrintWriter(fileWriter)) {
             participants.sort(Comparator.comparing(Participant::username));
 
-            writer.print(header(totalNumberOfEvents, participants.size()));
+            writer.print(header(participants.size()));
 
             participants.forEach(p -> {
-                String markdownForHomework = getMarkdownForParticipant(totalNumberOfEvents, p);
+                String markdownForHomework = getMarkdownForParticipant(new ParticipantPrinter(this.totalNumberOfEvents, p).p());
                 writer.print(markdownForHomework);
             });
         }
     }
 
-    private double getRate(int totalNumberOfEvents, Participant p) {
+    private double getRate(Participant p) {
         long count = p.homework().values().stream()
                 .filter(v -> v == true)
                 .count();
@@ -87,15 +102,15 @@ public class StudyDashboard {
         return rate;
     }
 
-    private String getMarkdownForParticipant(int totalNumberOfEvents, Participant p) {
-        return String.format("| %s %s | %.2f%% |\n", p.username(), checkMark(p, totalNumberOfEvents), getRate(totalNumberOfEvents, p));
+    private String getMarkdownForParticipant(Participant p) {
+        return String.format("| %s %s | %.2f%% |\n", p.username(), checkMark(p, totalNumberOfEvents), getRate(p));
     }
 
     /**
      * | 참여자 (420) | 1주차 | 2주차 | 3주차 | 참석율 |
      * | --- | --- | --- | --- | --- |
      */
-    private String header(int totalNumberOfEvents, int totalNumberOfParticipants) {
+    private String header(int totalNumberOfParticipants) {
         StringBuilder header = new StringBuilder(String.format("| 참여자 (%d) |", totalNumberOfParticipants));
 
         for (int index = 1; index <= totalNumberOfEvents; index++) {
