@@ -13,6 +13,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * 조건문 분해하기
+ * - 다양한 조건에서 종종 긴 함수가 만들어지는 것을 목격할 수 있다
+ * - "조건"과 "액션" 모두 "의도"를 표현해야한다.
+ * - 기술적으로는 "함수 추출하기"와 동일한 리팩토링이지만 의도만 다르다
+ * 
+ */
 public class StudyDashboard {
 
     private final int totalNumberOfEvents;
@@ -62,7 +69,30 @@ public class StudyDashboard {
         new StudyPrinter(this.totalNumberOfEvents, participants).execute();
     }
 
+    //TO-BE
     private Participant findParticipant(String username, List<Participant> participants) {
+        return isNewParticipant(username, participants) ?
+                createNewParticipant(username, participants) :
+                findExistingParticipant(username, participants);
+    }
+
+    private static Participant findExistingParticipant(String username, List<Participant> participants) {
+        return participants.stream().filter(p -> p.username().equals(username)).findFirst().orElseThrow();
+    }
+
+    private static Participant createNewParticipant(String username, List<Participant> participants) {
+        Participant participant;
+        participant = new Participant(username);
+        participants.add(participant);
+        return participant;
+    }
+
+    private static boolean isNewParticipant(String username, List<Participant> participants) {
+        return participants.stream().noneMatch(p -> p.username().equals(username));
+    }
+
+    //AS-IS
+/*    private Participant findParticipant(String username, List<Participant> participants) {
         Participant participant;
         if (participants.stream().noneMatch(p -> p.username().equals(username))) {
             participant = new Participant(username);
@@ -72,6 +102,5 @@ public class StudyDashboard {
         }
 
         return participant;
-    }
-
+    }*/
 }
