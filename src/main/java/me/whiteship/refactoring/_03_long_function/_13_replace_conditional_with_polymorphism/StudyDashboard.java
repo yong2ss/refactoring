@@ -13,6 +13,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * 조건문을 다형성으로 바꾸기
+ * - 여러 타입에 따라 각기 다른 로직으로 처리해야 하는 경우, 다형성을 적용해서 조건문보다 명확하게 분리할 수 있다.
+ * - 반복되는 switch문을 각기 다른 클래스를 만들어 제거할 수 있다.
+ * - 공통으로 사용되는 로직은 상위클래스에 두고 달라지는 부분만 하위클래스에 둠으로써, 달라지는 부분만 강조
+ * - 모든 조건문을 다형성으로 바꿔야 하는 것은 아니다.
+ */
 public class StudyDashboard {
 
     private final int totalNumberOfEvents;
@@ -30,7 +37,8 @@ public class StudyDashboard {
 
     private void print() throws IOException, InterruptedException {
         checkGithubIssues(getGhRepository());
-        new StudyPrinter(this.totalNumberOfEvents, this.participants, PrinterMode.MARKDOWN).execute();
+        new CsvPrinter(this.totalNumberOfEvents, this.participants);
+        //new StudyPrinter(this.totalNumberOfEvents, this.participants, PrinterMode.MARKDOWN).execute();
     }
 
     private GHRepository getGhRepository() throws IOException {
