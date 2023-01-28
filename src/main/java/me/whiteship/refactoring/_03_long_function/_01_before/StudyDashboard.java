@@ -16,6 +16,17 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * 짧은 함수 vs 긴 함수
+ * 함수가 길 수록 이해하기 어렵다 vs 짧은 함수는 많은 문맥 전환ㅇ르 필요로 한다
+ * 작은 함수에 "좋은 이름"을 사용하면 이해하기 쉽다
+ * "주석"을 남기고 싶다면, 주석 대신 함수를 만들고 함수의 이름으로 "의도"를 표현
+ * - 함수 추출하기
+ * - 매개변수 리팩토링
+ * - 조건문 분해
+ * - 조건문을 다형성으로 바꾸기
+ * - 반복문 쪼개기
+ */
 public class StudyDashboard {
 
     public static void main(String[] args) throws IOException, InterruptedException {
