@@ -15,6 +15,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * 반복문 쪼개기
+ * - 하나의 반복문에서 여러 작업을 하는 코드를 쉽게 볼 수 있다.
+ * - 해당 반복문을 수정할 때 여러 작업을 모두 고려해야한다
+ * - 반복문을 여러개로 쪼개면 보다 쉽게 이해하고 수정이 가능하다.
+ * - 성능 문제를 야기할 수 있지만, "리팩토링"은 "성능 최적화"와 별개의 작업이다. 따라서 리팩토링을 먼저 마친 후 성능 최적화 시도할 수 있다.
+ */
 public class StudyDashboard {
 
     private final int totalNumberOfEvents;
@@ -35,6 +42,13 @@ public class StudyDashboard {
     private void print() throws IOException, InterruptedException {
         GHRepository ghRepository = getGhRepository();
 
+        checkGithubIssues(ghRepository);
+
+        new StudyPrinter(this.totalNumberOfEvents, this.participants).execute();
+        printFirstParticipants();
+    }
+
+    private void checkGithubIssues(GHRepository ghRepository) throws InterruptedException {
         ExecutorService service = Executors.newFixedThreadPool(8);
         CountDownLatch latch = new CountDownLatch(totalNumberOfEvents);
 
@@ -46,9 +60,8 @@ public class StudyDashboard {
                     try {
                         GHIssue issue = ghRepository.getIssue(eventId);
                         List<GHIssueComment> comments = issue.getComments();
-                        Date firstCreatedAt = null;
-                        Participant first = null;
 
+/*                      [AS-IS]
                         for (GHIssueComment comment : comments) {
                             Participant participant = findParticipant(comment.getUserName(), participants);
                             participant.setHomeworkDone(eventId);
@@ -57,9 +70,12 @@ public class StudyDashboard {
                                 firstCreatedAt = comment.getCreatedAt();
                                 first = participant;
                             }
-                        }
+                        }*/
 
-                        firstParticipantsForEachEvent[eventId - 1] = first;
+                        //[TO-BE]
+                        checkHomework(comments, eventId);
+                        firstParticipantsForEachEvent[eventId - 1] = findFirst(comments);
+
                         latch.countDown();
                     } catch (IOException e) {
                         throw new IllegalArgumentException(e);
@@ -70,9 +86,27 @@ public class StudyDashboard {
 
         latch.await();
         service.shutdown();
+    }
 
-        new StudyPrinter(this.totalNumberOfEvents, this.participants).execute();
-        printFirstParticipants();
+    private Participant findFirst(List<GHIssueComment> comments) throws IOException {
+        Date firstCreatedAt = null;
+        Participant first = null;
+        for (GHIssueComment comment : comments) {
+            Participant participant = findParticipant(comment.getUserName(), participants);
+
+            if (firstCreatedAt == null || comment.getCreatedAt().before(firstCreatedAt)) {
+                firstCreatedAt = comment.getCreatedAt();
+                first = participant;
+            }
+        }
+        return first;
+    }
+
+    private void checkHomework(List<GHIssueComment> comments, int eventId) {
+        for (GHIssueComment comment : comments) {
+            Participant participant = findParticipant(comment.getUserName(), participants);
+            participant.setHomeworkDone(eventId);
+        }
     }
 
     private void printFirstParticipants() {
